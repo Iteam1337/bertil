@@ -54,6 +54,7 @@ defmodule Bertil.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:websockex, "~> 0.4.3"},
       {:httpoison, "~> 1.8"},
+      {:tzdata, "~> 1.1"},
       {:remix, "~> 0.0.1", only: :dev}
     ]
   end
