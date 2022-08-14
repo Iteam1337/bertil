@@ -9,15 +9,18 @@ defmodule Bertil.Time do
     GenServer.call(process, {:change_status, new_status})
   end
 
-  def get_events(process, date \\ Date.utc_today()) do
+  def get_events(process) do
+    date =
+      DateTime.now!("Europe/Stockholm", Tzdata.TimeZoneDatabase)
+      |> Calendar.strftime("%y-%m-%d")
+
     GenServer.call(process, {:get_events, date})
   end
 
   def handle_call({:change_status, new_status}, _, state) do
-    {hour, minute, _} = Time.utc_now() |> Time.to_erl()
-
-    time_stamp = "#{hour}:#{minute}"
-    date = Date.utc_today()
+    datetime = DateTime.now!("Europe/Stockholm", Tzdata.TimeZoneDatabase)
+    time_stamp = Calendar.strftime(datetime, "%I:%M")
+    date = Calendar.strftime(datetime, "%y-%m-%d")
 
     first_today? =
       Map.get(state, date, []) |> Enum.all?(fn %{status: status} -> status == "away" end)
@@ -30,7 +33,5 @@ defmodule Bertil.Time do
       else: {:reply, new_event, upd_state}
   end
 
-  def handle_call({:get_events, date}, _, state) do
-    Map.get(state, date)
-  end
+  def handle_call({:get_events, date}, _, state), do: {:reply, Map.get(state, date), state}
 end

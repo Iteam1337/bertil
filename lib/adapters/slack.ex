@@ -63,11 +63,13 @@ defmodule Bertil.Adapters.Slack do
   def handle_message(%{"text" => "get", "user" => user_id}, state) do
     %{channel_id: channel_id, pid: pid} = Map.get(state, user_id)
 
-    # events = Bertil.Time.get_events(pid)
+    events = Bertil.Time.get_events(pid)
 
     {:reply,
-     Bertil.Messages.reply_text_message("Here are the recorded events for today \n", channel_id),
-     state}
+     Bertil.Messages.reply_text_message(
+       "Here are the recorded events for today, \n #{inspect(events)}",
+       channel_id
+     ), state}
   end
 
   def handle_message(
