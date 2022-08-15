@@ -6,5 +6,14 @@ defmodule Bertil.Messages do
     do:
       encode_msg(%{id: 1_234_141, type: "message", text: "Register first!", channel: channel_id})
 
+  def presence_change(channel_id, event) do
+    encode_msg(%{
+      id: 123_141,
+      type: "message",
+      channel: channel_id,
+      text: Jason.encode!(event)
+    })
+  end
+
   def encode_msg(msg), do: {:text, Jason.encode!(msg)}
 end

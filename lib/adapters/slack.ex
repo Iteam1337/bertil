@@ -1,5 +1,7 @@
 defmodule Bertil.Adapters.Slack do
   use WebSockex
+  alias Bertil.Messages
+  alias Bertil.Time
   @bot_token Application.get_env(:bertil, :slack_bot_token)
 
   def start_link(_) do
@@ -36,20 +38,13 @@ defmodule Bertil.Adapters.Slack do
   # Handlers
 
   def handle_message(%{"text" => "register", "user" => user_id, "channel" => channel_id}, state)
-      when is_map_key(state, user_id) do
-    {:reply,
-     encode_msg(%{
-       id: 123_141,
-       type: "message",
-       channel: channel_id,
-       text: "Already registered!"
-     }), state}
-  end
+      when is_map_key(state, user_id),
+      do: {:reply, Messages.reply_text_message("Already Registered!", channel_id), state}
 
   def handle_message(%{"text" => "register", "user" => user_id, "channel" => channel_id}, state) do
     new_state =
       Map.put_new(state, user_id, %{
-        pid: Bertil.Time.start_link([]) |> elem(1),
+        pid: Time.start_link([]) |> elem(1),
         channel_id: channel_id
       })
 
@@ -58,7 +53,7 @@ defmodule Bertil.Adapters.Slack do
 
   def handle_message(%{"text" => "get", "user" => user_id, "channel" => channel_id}, state)
       when not is_map_key(state, user_id),
-      do: {:reply, Bertil.Messages.reply_not_registered(channel_id), state}
+      do: {:reply, Messages.reply_not_registered(channel_id), state}
 
   def handle_message(%{"text" => "get", "user" => user_id}, state) do
     %{channel_id: channel_id, pid: pid} = Map.get(state, user_id)
@@ -66,7 +61,7 @@ defmodule Bertil.Adapters.Slack do
     events = Bertil.Time.get_events(pid)
 
     {:reply,
-     Bertil.Messages.reply_text_message(
+     Messages.reply_text_message(
        "Here are the recorded events for today, \n #{inspect(events)}",
        channel_id
      ), state}
@@ -77,15 +72,9 @@ defmodule Bertil.Adapters.Slack do
         state
       ) do
     user = Map.get(state, user_id)
-    event_created = Bertil.Time.user_changed_status(user.pid, presence)
+    event_created = Time.user_changed_status(user.pid, presence)
 
-    {:reply,
-     encode_msg(%{
-       id: 123_141,
-       type: "message",
-       channel: user.channel_id,
-       text: Jason.encode!(event_created)
-     }), state}
+    {:reply, Messages.presence_change(user.channel_id, event_created), state}
   end
 
   def handle_message(msg, state) do
