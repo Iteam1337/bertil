@@ -16,21 +16,22 @@ defmodule Bertil.Messages do
 
   def list_events(events) do
     msg =
-      Enum.drop_while(events, fn %{status: status} -> status === "away" end)
+      events
+      |> Enum.reverse()
+      |> Enum.drop_while(fn %{status: status} -> status === "away" end)
       |> Enum.chunk_every(2)
-      |> Enum.reduce("Here are the records for today \n", fn [
-                                                               %{
-                                                                 status: "active",
-                                                                 time_stamp: ts_start
-                                                               },
-                                                               %{
-                                                                 status: "away",
-                                                                 time_stamp: ts_end
-                                                               }
-                                                             ],
-                                                             acc ->
-        "#{acc} #{ts_start}-#{ts_end} \n"
-      end)
+      |> IO.inspect(label: "Label")
+      |> Enum.reduce(
+        "Here are the records for today \n",
+        fn
+          [%{status: "active", time_stamp: ts_start}, %{status: "away", time_stamp: ts_end}],
+          acc ->
+            "#{acc}#{ts_start}-#{ts_end} \n"
+
+          [%{status: "active", time_stamp: ts_start}], acc ->
+            "#{acc}#{ts_start}-\n"
+        end
+      )
 
     %{
       id: 1_234_414,

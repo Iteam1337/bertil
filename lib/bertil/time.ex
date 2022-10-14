@@ -7,9 +7,7 @@ defmodule Bertil.Time do
   end
 
   def user_changed_status(process, new_status),
-    do:
-      GenServer.call(process, {:change_status, new_status})
-      |> Messages.presence_change()
+    do: GenServer.call(process, {:change_status, new_status})
 
   def get_events(process) do
     date =
@@ -17,7 +15,6 @@ defmodule Bertil.Time do
       |> Calendar.strftime("%y-%m-%d")
 
     GenServer.call(process, {:get_events, date})
-    |> Messages.list_events()
   end
 
   ### Internal 
