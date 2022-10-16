@@ -13,7 +13,7 @@ spec:
         paths:
           - path: /
             pathType: Prefix
-            backend:
+            bertil:
               service:
                 name: bertil
                 port:
