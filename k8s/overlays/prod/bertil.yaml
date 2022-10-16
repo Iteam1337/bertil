@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bertil-ingress
+spec:
+  tls:
+    - hosts:
+        - bertil.iteam.services
+      secretName: bertil-prod-tls
+  rules:
+    - host: bertil.iteam.services
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bertil
+                port:
+                  number: 80

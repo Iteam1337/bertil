@@ -1,0 +1,18 @@
+apiVersion: skaffold/v2alpha4
+kind: Config
+metadata:
+  name: bertil
+build:
+  artifacts:
+    - image: iteam1337/bertil
+deploy:
+  kustomize:
+    paths:
+      - k8s/base
+  statusCheckDeadlineSeconds: 600
+profiles:
+  - name: prod
+    deploy:
+      kustomize:
+        paths:
+          - k8s/overlays/prod
