@@ -47,4 +47,6 @@ if config_env() == :prod do
       port: port
     ],
     secret_key_base: secret_key_base
+
+  config :bertil, :slack_bot_token, System.get_env("SLACK_BOT_TOKEN")
 end

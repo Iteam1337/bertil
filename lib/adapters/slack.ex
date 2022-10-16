@@ -2,10 +2,11 @@ defmodule Bertil.Adapters.Slack do
   use WebSockex
   alias Bertil.Messages
   alias Bertil.Time
-  @bot_token Application.get_env(:bertil, :slack_bot_token)
 
   def start_link(_) do
-    headers = [Authorization: "Bearer #{@bot_token}", Accept: "Application/json; Charset=utf-8"]
+    bot_token = Application.get_env(:bertil, :slack_bot_token)
+
+    headers = [Authorization: "Bearer #{bot_token}", Accept: "Application/json; Charset=utf-8"]
 
     %{"url" => socket_url} =
       HTTPoison.get!("https://slack.com/api/rtm.connect?pretty=1", headers)
@@ -30,7 +31,6 @@ defmodule Bertil.Adapters.Slack do
 
     msg
     |> Jason.decode!()
-    # |> IO.inspect()
     |> handle_message(state)
   end
 
@@ -63,8 +63,6 @@ defmodule Bertil.Adapters.Slack do
 
   def handle_message(%{"text" => "get", "user" => user_id}, state) do
     %{pid: pid, channel_id: channel_id} = Map.get(state, user_id)
-
-    IO.puts("GETTING")
 
     Time.get_events(pid)
     |> IO.inspect()
@@ -103,7 +101,6 @@ defmodule Bertil.Adapters.Slack do
 
   defp reply(message, state, channel_id) do
     payload = message |> Map.put(:channel, channel_id) |> encode_msg
-    IO.inspect(state)
     {:reply, payload, state}
   end
 end
