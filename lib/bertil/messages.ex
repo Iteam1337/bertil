@@ -15,6 +15,14 @@ defmodule Bertil.Messages do
     do: %{id: 12314, type: "message", text: "Good morning! Today you clocked in at #{time_stamp}"}
 
   def list_events(events) do
+    time = List.first(events) |> Map.get(:time_stamp)
+
+    hours =
+      DateTime.now!("Europe/Stockholm", Tzdata.TimeZoneDatabase)
+      |> DateTime.to_time()
+      |> Time.diff(Time.from_iso8601(time <> ":00") |> elem(1))
+      |> div(360)
+
     msg =
       events
       |> Enum.reverse()
@@ -22,7 +30,7 @@ defmodule Bertil.Messages do
       |> Enum.chunk_every(2)
       |> IO.inspect(label: "Label")
       |> Enum.reduce(
-        "Here are the records for today \n",
+        "You've worked #{hours} hours today. Here are the records for today \n",
         fn
           [%{status: "active", time_stamp: ts_start}, %{status: "away", time_stamp: ts_end}],
           acc ->
