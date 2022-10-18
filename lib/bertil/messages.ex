@@ -15,13 +15,13 @@ defmodule Bertil.Messages do
     do: %{id: 12314, type: "message", text: "Good morning! Today you clocked in at #{time_stamp}"}
 
   def list_events(events) do
-    time = List.first(events) |> Map.get(:time_stamp)
+    time = List.last(events) |> Map.get(:time_stamp)
 
     hours =
       DateTime.now!("Europe/Stockholm", Tzdata.TimeZoneDatabase)
       |> DateTime.to_time()
       |> Time.diff(Time.from_iso8601(time <> ":00") |> elem(1))
-      |> div(360)
+      |> div(3600)
 
     msg =
       events
